@@ -154,7 +154,7 @@ public class BlockGenerator {
                         ByteUtils.clone(parent.getStateRoot()), EMPTY_TRIE_HASH, EMPTY_TRIE_HASH,
                         ByteUtils.clone(new Bloom().getData()), difficulty, parent.getNumber() + 1,
                         parent.getGasLimit(), parent.getGasUsed(), parent.getTimestamp() + ++count, EMPTY_BYTE_ARRAY,
-                        Coin.valueOf(fees), null, null, null, new byte[12], null, uncles.size(), null
+                        Coin.valueOf(fees), null, null, null, new byte[12], null, uncles.size(), new byte[0]
                 ),
                 Collections.emptyList(),
                 uncles
