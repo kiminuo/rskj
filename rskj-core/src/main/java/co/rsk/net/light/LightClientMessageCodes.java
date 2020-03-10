@@ -5,7 +5,9 @@ import java.util.Map;
 
 public enum LightClientMessageCodes {
 
-    TEST(0x00);
+    TEST(0x00),
+    GET_TRANSACTION_INDEX(0x03),
+    TRANSACTION_INDEX(0x04);
 
     private final int cmd;
 
@@ -22,7 +24,7 @@ public enum LightClientMessageCodes {
     }
 
     public static boolean inRange(byte code) {
-        return code >= TEST.asByte() && code <= TEST.asByte();
+        return code >= TEST.asByte() && code <= TRANSACTION_INDEX.asByte();
     }
 
     public static LightClientMessageCodes fromByte(byte i) {
