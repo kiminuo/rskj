@@ -223,11 +223,13 @@ public class BlockFactoryTest {
         assertThat(header.getUmmRoot(), is(decodedHeader.getUmmRoot()));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void decodeBlockRskip110OffRskipUMMOnAndNoMergedMiningFieldsNullUMMRoot() {
         long number = 500L;
         enableRulesAt(number, RSKIP92, RSKIPUMM);
 
+        // this should not be possible after the activation of UMM
+        // blocks are expected to have an empty byte array
         BlockHeader header = createBlockHeader(number, new byte[0], null);
 
         byte[] encodedHeader = header.getEncoded();
@@ -275,11 +277,13 @@ public class BlockFactoryTest {
         assertThat(header.getUmmRoot(), is(decodedHeader.getUmmRoot()));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void decodeBlockRskip110OffRskipUMMOnAndMergedMiningFieldsNullUmmRoot() {
         long number = 500L;
         enableRulesAt(number, RSKIP92, RSKIPUMM);
 
+        // this should not be possible after the activation of UMM
+        // blocks are expected to have an empty byte array
         BlockHeader header = createBlockHeaderWithMergedMiningFields(number, new byte[0], null);
 
         byte[] encodedHeader = header.getFullEncoded();

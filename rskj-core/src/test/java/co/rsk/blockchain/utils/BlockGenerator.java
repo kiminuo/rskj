@@ -56,7 +56,7 @@ public class BlockGenerator {
 
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
-    private static final Block[] blockCache = new Block[5];
+    private final Block[] blockCache = new Block[5];
 
     private final DifficultyCalculator difficultyCalculator;
     private final BlockFactory blockFactory;
@@ -148,13 +148,17 @@ public class BlockGenerator {
     public Block createChildBlock(Block parent, long fees, List<BlockHeader> uncles, byte[] difficulty) {
         byte[] unclesListHash = HashUtil.keccak256(BlockHeader.getUnclesEncodedEx(uncles));
 
+        long blockNumber = parent.getNumber() + 1;
+
+        byte[] ummRoot = activationConfig.isActive(ConsensusRule.RSKIPUMM, blockNumber) ? new byte[0] : null;
+
         return blockFactory.newBlock(
                 blockFactory.newHeader(
                         parent.getHash().getBytes(), unclesListHash, parent.getCoinbase().getBytes(),
                         ByteUtils.clone(parent.getStateRoot()), EMPTY_TRIE_HASH, EMPTY_TRIE_HASH,
-                        ByteUtils.clone(new Bloom().getData()), difficulty, parent.getNumber() + 1,
+                        ByteUtils.clone(new Bloom().getData()), difficulty, blockNumber,
                         parent.getGasLimit(), parent.getGasUsed(), parent.getTimestamp() + ++count, EMPTY_BYTE_ARRAY,
-                        Coin.valueOf(fees), null, null, null, new byte[12], null, uncles.size(), new byte[0]
+                        Coin.valueOf(fees), null, null, null, new byte[12], null, uncles.size(), ummRoot
                 ),
                 Collections.emptyList(),
                 uncles
@@ -170,13 +174,18 @@ public class BlockGenerator {
         Bloom logBloom = new Bloom();
 
         boolean isRskip126Enabled = activationConfig.isActive(ConsensusRule.RSKIP126, 0);
+
+        long blockNumber = parent.getNumber() + 1;
+
+        byte[] ummRoot = activationConfig.isActive(ConsensusRule.RSKIPUMM, blockNumber) ? new byte[0] : null;
+
         return blockFactory.newBlock(
                 blockFactory.newHeader(
                         parent.getHash().getBytes(), EMPTY_LIST_HASH, coinbase,
                         stateRoot, BlockHashesHelper.getTxTrieRoot(txs, isRskip126Enabled),
-                        EMPTY_TRIE_HASH, logBloom.getData(), parent.getDifficulty().getBytes(), parent.getNumber() + 1,
+                        EMPTY_TRIE_HASH, logBloom.getData(), parent.getDifficulty().getBytes(), blockNumber,
                         parent.getGasLimit(), parent.getGasUsed(), parent.getTimestamp() + ++count,
-                        EMPTY_BYTE_ARRAY, Coin.ZERO, null, null, null, new byte[12], null, 0, null
+                        EMPTY_BYTE_ARRAY, Coin.ZERO, null, null, null, new byte[12], null, 0, ummRoot
                 ),
                 txs,
                 Collections.emptyList(),
@@ -222,13 +231,17 @@ public class BlockGenerator {
 
         byte[] unclesListHash = HashUtil.keccak256(BlockHeader.getUnclesEncodedEx(uncles));
 
+        long blockNumber = parent.getNumber() + 1;
+
+        byte[] ummRoot = activationConfig.isActive(ConsensusRule.RSKIPUMM, blockNumber) ? new byte[0] : null;
+
         BlockHeader newHeader = blockFactory.newHeader(
                 parent.getHash().getBytes(),
                 unclesListHash,
                 coinbase.getBytes(),
                 ByteUtils.clone(new Bloom().getData()),
                 new byte[]{1},
-                parent.getNumber() + 1,
+                blockNumber,
                 gasLimit,
                 0,
                 parent.getTimestamp() + ++count,
@@ -236,12 +249,12 @@ public class BlockGenerator {
                 new byte[]{},
                 new byte[]{},
                 new byte[]{},
-                parent.getNumber() + 1 > MiningConfig.REQUIRED_NUMBER_OF_BLOCKS_FOR_FORK_DETECTION_CALCULATION ?
+                blockNumber > MiningConfig.REQUIRED_NUMBER_OF_BLOCKS_FOR_FORK_DETECTION_CALCULATION ?
                         new byte[12] :
                         new byte[0],
                 (minGasPrice != null) ? minGasPrice.toByteArray() : null,
                 uncles.size(),
-                null
+                ummRoot
         );
 
         if (difficulty == 0) {
@@ -278,6 +291,9 @@ public class BlockGenerator {
         Coin minimumGasPrice = new MinimumGasPriceCalculator(Coin.valueOf(100L)).calculate(previousMGP);
 
         boolean isRskip126Enabled = activationConfig.isActive(ConsensusRule.RSKIP126, 0);
+
+        byte[] ummRoot = activationConfig.isActive(ConsensusRule.RSKIPUMM, number) ? new byte[0] : null;
+
         return blockFactory.newBlock(
                 blockFactory.newHeader(
                         parent.getHash().getBytes(), EMPTY_LIST_HASH, parent.getCoinbase().getBytes(),
@@ -285,7 +301,7 @@ public class BlockGenerator {
                         logBloom.getData(), parent.getDifficulty().getBytes(), number,
                         parent.getGasLimit(), parent.getGasUsed(), parent.getTimestamp() + ++count,
                         EMPTY_BYTE_ARRAY, Coin.ZERO, null, null,
-                        null, new byte[12], minimumGasPrice.getBytes(), 0, null
+                        null, new byte[12], minimumGasPrice.getBytes(), 0, ummRoot
                 ),
                 txs,
                 Collections.emptyList()
@@ -301,14 +317,18 @@ public class BlockGenerator {
             txs.add(new SimpleRskTransaction(PegTestUtils.createHash3().getBytes()));
         }
 
+        long blockNumber = parent.getNumber() + 1;
+
+        byte[] ummRoot = activationConfig.isActive(ConsensusRule.RSKIPUMM, blockNumber) ? new byte[0] : null;
+
         return blockFactory.newBlock(
                 blockFactory.newHeader(
                         parent.getHash().getBytes(), EMPTY_LIST_HASH, parent.getCoinbase().getBytes(),
                         EMPTY_TRIE_HASH, EMPTY_TRIE_HASH, EMPTY_TRIE_HASH,
-                        logBloom.getData(), parent.getDifficulty().getBytes(), parent.getNumber() + 1,
+                        logBloom.getData(), parent.getDifficulty().getBytes(), blockNumber,
                         parent.getGasLimit(), parent.getGasUsed(), parent.getTimestamp() + ++count,
                         EMPTY_BYTE_ARRAY, Coin.ZERO, null, null, null, new byte[12], Coin.valueOf(10).getBytes(), 0,
-                        null
+                        ummRoot
                 ),
                 txs,
                 Collections.emptyList()
