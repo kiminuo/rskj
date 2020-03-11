@@ -49,7 +49,6 @@ public class MessageVisitor {
 
     private final BlockProcessor blockProcessor;
     private final SyncProcessor syncProcessor;
-    private final LightProcessor lightProcessor;
     private final TransactionGateway transactionGateway;
     private final Peer sender;
     private final PeerScoringManager peerScoringManager;
@@ -59,7 +58,6 @@ public class MessageVisitor {
     public MessageVisitor(RskSystemProperties config,
                           BlockProcessor blockProcessor,
                           SyncProcessor syncProcessor,
-                          LightProcessor lightProcessor,
                           TransactionGateway transactionGateway,
                           PeerScoringManager peerScoringManager,
                           ChannelManager channelManager,
@@ -67,7 +65,6 @@ public class MessageVisitor {
 
         this.blockProcessor = blockProcessor;
         this.syncProcessor = syncProcessor;
-        this.lightProcessor = lightProcessor;
         this.transactionGateway = transactionGateway;
         this.peerScoringManager = peerScoringManager;
         this.channelManager = channelManager;
@@ -166,15 +163,6 @@ public class MessageVisitor {
         this.syncProcessor.processBlockHashResponse(sender, message);
     }
 
-    public void apply(BlockReceiptsRequestMessage message) {
-        this.lightProcessor.processBlockReceiptsRequest(sender, message.getId(), message.getBlockHash());
-    }
-
-    public void apply(BlockReceiptsResponseMessage message) {
-        this.lightProcessor.processBlockReceiptsResponse(sender, message);
-
-    }
-
     public void apply(NewBlockHashMessage message) {
         this.syncProcessor.processNewBlockHash(sender, message);
     }
@@ -229,21 +217,34 @@ public class MessageVisitor {
 
         loggerMessageProcess.debug("Tx message process finished after [{}] nano.", System.nanoTime() - start);
     }
-    public void apply(TransactionIndexRequestMessage message) {
-        lightProcessor.processTransactionIndexRequest(sender, message.getId(), message.getTransactionHash());
-    }
 
-    public void apply(TransactionIndexResponseMessage message) {
-        lightProcessor.processTransactionIndexResponseMessage(sender, message);
-    }
+//    public void apply(BlockReceiptsRequestMessage message) {
+//        this.lightProcessor.processBlockReceiptsRequest(sender, message.getId(), message.getBlockHash());
+//    }
+//
+//    public void apply(BlockReceiptsResponseMessage message) {
+//        this.lightProcessor.processBlockReceiptsResponse(sender, message);
+//
+//    }
 
-    public void apply(CodeRequestMessage message) {
-        this.lightProcessor.processCodeRequest(sender, message.getId(), message.getBlockHash(), message.getAddress());
-    }
-
-    public void apply(CodeResponseMessage message) {
-        this.lightProcessor.processCodeResponse(sender, message);
-    }
+//    public void apply(BlockReceiptsResponseMessage message) {
+//        this.lightProcessor.processBlockReceiptsResponse(sender, message);
+//    }
+//    public void apply(TransactionIndexRequestMessage message) {
+//        lightProcessor.processTransactionIndexRequest(sender, message.getId(), message.getTransactionHash());
+//    }
+//
+//    public void apply(TransactionIndexResponseMessage message) {
+//        lightProcessor.processTransactionIndexResponseMessage(sender, message);
+//    }
+//
+//    public void apply(CodeRequestMessage message) {
+//        this.lightProcessor.processCodeRequest(sender, message.getId(), message.getBlockHash(), message.getAddress());
+//    }
+//
+//    public void apply(CodeResponseMessage message) {
+//        this.lightProcessor.processCodeResponse(sender, message);
+//    }
 
     private void recordEvent(Peer sender, EventType event) {
         if (sender == null) {
